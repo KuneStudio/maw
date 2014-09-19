@@ -1,0 +1,202 @@
+Ce guide a pour but de mettre en place un environnement de démarage pour Wordpress. Avant toute installation, il est bon de relire ce guide pour ne rien oublié.
+Chaque étape est importante et ne doit pas être oubliée.
+
+Le guide est découpé en plusieurs parties, allant de l'installation propre de Wordpress à l'activation de plusieurs plugins, jusqu'à la configuration de certain de ces derniers.
+
+## Installation de Wordpress 
+
+### Environnement de développement 
+Tout développement doit d'abord passer par un environnement de développement. Cette étape nous permettra, même pour les "petits" sites, de maintenir à jour le code proprement.
+
+Plusieurs options sont possibles : 
+* Télécharger l'archive par [le site officiel](http://fr.wordpress.org/)
+* Téléchargement par GIT sur [le repo officiel](https://github.com/WordPress/WordPress)
+
+
+### Installation
+Une fois l'installation de WP lancée, il convient de respecter ces quelques consignes :
+
+* Utiliser un nom d'utilisateur différent de admin. Les attaques de masse sur les installations WP partent du principe que beaucoup d'installations utilisent ce nom d'utilisateur.
+* Utiliser un mot de passe fort. Il doit contenir des caractères alphanumériques ainsi que des caractères spéciaux (-, _, !, $, € ...). Un minimum de 8/10 caractères est plus que recommandé.
+* Utiliser un préfixe de table **différent** de wp_ . La raison est la même que pour le premier point, wp_ est utilisé par la majorité des sites, il convient d'en utiliser une autre, distincte.
+
+####1) Supprimer les fichiers inutiles
+Cette étape va nous permettre de supprimer les informations sur notre installation qui pourraient être utile à un tiers pour accéder à notre site.
+Les fichiers et dossiers à supprimer sont donc :
+
+* licence.txt
+* readme.html
+* wp-content/plugins/hello.php
+
+Si le site n'est pas prévu pour recevoir de commentaires, supprimer aussi **wp-content/plugins/akismet**.
+
+####2) Génération des permaliens
+Une fois les permaliens générés, nous pourrons passer à la modification du fichier **.htaccess**. 
+Il n'y a pas vraiment de meilleur choix pour les permaliens. La seule recommandation, d'un point de vue SEO serait :
+
+* Format "jour et nom de l'article" si le site est plutôt tourné vers l'actualité : `/%year%/%monthnum%/%day%/%postname%/`
+* Pour tout le reste, juste le nom de l'article `/%postname%/` ou catégorie et nom de l'article `/%category%/%postname%/``
+
+### Plugins à installer par défaut 
+
+Vous pourrez trouver les plugins décrits plus bas en vous rendant dans votre espace d'administration : Plugins > Ajouter > Favorites.
+Vous pouvez alors rechercher l'utilisateur MawMat et installer tous les plugins présents dans la liste, en commençant par :
+
+#### iThemes Security 
+
+Ce plugin important va nous permettre de réaliser quelques opérations simples pour augmenter la sécurité de notre installation.
+#####1) Une fois le plugin activé, cliquez sur *Secure your site now*. Une fenêtre va s'ouvrir, procédez aux 3 opérations.
+* Backup du site
+* Allow file update
+* One click secure
+
+Après avoir effectué cette dernière opération, plusieurs points sont encore à résoudre, mais nous reviendrons dessus lorsque le site sera prêt à être mis en production. Pour le moment, seuls ces points sont important :
+
+* *A user with id 1 still exists.* : Vous devrez vous reconnecter après avoir réalisé cette opération, c'est normal. Même login, même mot-de-passe.
+* *Hide login area* : cela changera l'adresse permettant de se logguer.
+
+Passez ensuite à la partie *Settings* et défilez jusqu'à la section *Banned Users*. Activez la blacklist *Hackrepairs.com* et enregistrez.
+
+Rendez-vous ensuite dans la partie "Advanced" du menu, et changez le nom du dossier content. Il est **IMPORTANT** de faire ça des l'installation de Wordpress pour ne pas avoir à réécrire les liens vers les fichiers à posteriori.
+
+Activez enfin les protections .htaccess, cela empèchera les modifications de fichiers et autres actes malveillants.
+
+#### Plugin de sauvegarde ####
+Le plugin recommandé est BackupBuddy. Payant mais très pratique. Il regroupe de nombreuses fonctions supplémentaires comme un outil de migration dev/prod.
+
+Quelque soit le plugin que vous choisissez, pensez à régler les sauvegardes pour qu'elles travaillent tous les jours (pendant la nuit) pour la BDD, et toute les semaines pour les fichiers. Si votre plugin vous permet de ne sauvegarder que ce qui a été créé depuis la dernière sauvegarde, faites le tous les jours.
+
+#### WordPress SEO by Yoast 
+Plugin qui permettra de bien gérer le SEO du site. Il est VIVEMENT recommandé de ne pas utiliser les outils de SEO des thèmes. Lorsque le thème change, le risque est trop grand de perdre tout le travail effectué pour le SEO.
+
+#### WP Super Cache 
+Plugin qui permet une meilleure mise en cache du site. 
+
+#### Google Analytics for WordPress 
+De même que pour le SEO, il est recommandé de ne pas utiliser les fonctions du thème pour Google Analytics, en cas de changement de thème.
+
+#### WP Smush.it 
+Plugin d'optimisation des images.
+
+#### WP Sync DB (Fork de WP Migrate Pro)
+Ce plugin nous aidera lors de la migration de la BDD.
+Il faut le télécharger sur [le github du projet](https://github.com/wp-sync-db/wp-sync-db).
+
+#### IWP Client
+Ce plugin va nous servir à manager le site, pour les mises à jour notamment. https://wordpress.org/plugins/iwp-client/
+
+
+## Gestion du thème 
+Il faut bien faire attention aux thèmes que l'on installe sur un site, même en version de test. Je déconseille fortement toute utilisation de thème téléchargé hors de la plateforme d'achat ou du site officiel. 
+Il est fort probable qu'ils aient été modifié pour y ajouter du code malicieux qui permettrait de pirater le site ou effectuer des actions négative pour le site.
+
+### Ajout de contenu de test 
+Avant l'installation du thème, une bonne pratique est d'installer du contenu de test afin de vérifier que toutes les fonctions typographiques et graphiques (images, vidéos ...) sont bien prises en compte par le thème. 
+Pour cela, télécharger l'archive présente ici : [wptest.io](http://wptest.io) et suivez les instructions dans le readme.
+
+### Développement et modifications 
+Une fois le thème sélectionné est installé, si une modification est souhaitée, il est FORTEMENT recommandé de créer un thème enfant.
+
+Pour cela, il faut créer un dossier avec le nom du thème enfant dans *wp-content/themes/* et y ajouter un fichier *style.css*.
+Dans ce dernier, ajoutez les lignes suivantes au début du fichier :
+
+    /*
+     Theme Name:   Nom du thème enfant
+     Theme URI:    http://www.marsatwork.fr
+     Description:  Description du thème
+     Author:       Marsatwork
+     Author URI:   http://marsatwork.fr
+     Template:     nom_du_theme_parent
+     Version:      1.0.0
+     Text Domain:  nom-theme-enfant
+    */
+    
+    
+    @import url("../nom_du_theme_parent/style.css");
+    
+    
+    /* Commencez les modifications ci-dessous
+    ----------------------------------------------- */
+
+Si vous souhaitez modifier un fichier, copiez l'original dans ce dossier et modifiez le. Il sera utilisé automatiquement par WP au lieu du fichier principal.
+
+#### Modifications ultérieures
+Si vous souhaitez de nouveau modifier un fichier, lors de la phase de recette par exemple, si vous n'utilisez pas de versionning, pensez à bien dupliquer le fichier de cette manière : *nom_fichier-DATEDUJOUR.php.back*.
+Si vous avez accès à BackupBuddy, faites une sauvegarde du thème et le plugin vous permettra de faire un rollback sur ce fichier en particulier.
+
+## Mise en ligne
+Pour mettre le site en ligne, voilà quelques conseils et méthodes.
+
+### 1) Nettoyage
+Si vous ne l'avez pas encore fait, pensez à supprimer tout le contenu de test (et celui la uniquement) que vous avez ajouté au site. Cela allègera la BDD et simplifiera l'utilisation au client.
+
+### 2) Archive des fichiers
+Commencez par faire une archive avec les fichiers contenus dans la partie *wp-content* du site que vous enverrez sur le nouveau serveur. 
+
+### 3) Installation PROD
+
+ 1. Faites une installation propre de WP sur le serveur de PROD. 
+ 2. Supprimez le dossier wp-content par l'archive que vous avez récupérez dans le point 2.
+
+### 4) .htaccess
+Téléchargez le fichier .htaccess et ouvez le dans votre éditeur de texte. Vérifiez bien qu'il n'y a pas d'URL dans celui-ci et s'il y en a une, modifiez la par la nouvelle.
+Une fois terminé, transférez le fichier.
+
+### 5) BDD
+Il existe de nombreuses manières de transférer la BDD d'un site à l'autre, mais voilà celle que je conseille, surtout pour les thèmes achetés en ligne.
+Vous avez installé le plugin WP Sync DB, il est temps de l'utiliser.
+Sur le **serveur de production**, rendez vous sur Outils > Migrate DB.
+Sélectionnez "Pull".
+Sur le serveur de test, rendez vous sur Outils > Migrate DB > Settings, et cochez la case "Accept Pull requests". Copiez les informations du champ (fig1) et collez les dans le champ le champ *Connection info*.
+
+**fig1** :
+![fig1](http://goo.gl/SD49Gx)
+
+Vous pouvez maintenant lancer la migration. Patientez quelques minutes, selon la taille de la BDD.
+Toutes les options du thème devraient être présentes également sur le site de prod !
+
+### 6) Configuration finale
+Vous pouvez maintenant terminer la configuration du site. 
+
+#### Cache
+Activez le plugin de cache en veillant à bien utiliser les options recommandées.
+
+#### iThemes Security
+
+Rendez-vous sur la page de configuration de iThemes Security, et configurez ces quelques points si ils sont toujours présents :
+
+ 1. Your website is not protected against bots looking for known vulnerabilities. Consider turning on 404 protection.
+ 2. *Your WordPress Dashboard is available 24/7. Do you really update 24 hours a day? Consider using Away Mode*. Si votre client le souhaite, configurez le mode away afin que le site ne soit accessible que sur certaines plages horaire. **Attention**, une fois configurez, le back-office ne sera accessible par **personne** hors des plages horaires autorisées.
+ 3. *Your WordPress installation is allowing users without a user agent to post comments. Fix this to reduce comment spam.* Si le site accepte les commentaires, configurez cette partie.
+
+#### Désactivez WP Sync DB
+Désactivez bien WP Sync DB sur les 2 sites, mais ne les supprimez pas, nous en aurons surement besoin plus tard. 
+
+#### IWP
+Activez le plugin client InfiniteWP. Vous aurez besoin de clés.
+Pour la configuration, envoyer un mail à mbasili@marsatwork.fr avec comme sujet [IWP Activation], et dans le corps du mail :
+- L'URL de l'administration WP (attention, vous avez normalement du la changer dans les configurations de IThemes Security).
+- Le nom d'utilisateur principal (attention, si vous avez bien suivi le guide, il ne doit pas exister d'utilisateur *admin* sur le site, si c'est le cas,  créez en un nouveau avec les droits d'administration et supprimez le login admin).
+- *L'activation key* que vous obtenez en activant le plugin IWP.
+
+#### Désactivez les backups sur le site de DEV !!! 
+Pensez à bien desactiver les backup automatique du site de dev pour ne pas encombrer le serveur.
+
+## Maintenance du code
+Quelque soit la mise à jour que vous effectuez, il faut s'assurer de les faire sur le site de développement. Sauf cas de force majeure, il ne faut **jamais** les faire directement sur le site de production.
+
+Les quelques étapes pour remettre à jour ce dernier :
+
+1. **Assurez vous que les 2 sites sont sauvegardés !!!**
+2. Téléchargez le dossier wp-content du site de prod ou demandez le au chef de projet et envoyez le sur le site de dev.
+3. Activez WP Sync DB et faites une synchronisation du site de prod vers le site de dev. Vérifiez bien 2 ou 3 fois que vous le faites bien dans ce sens.
+4. Lorsque vous modifiez un fichier, pensez à en faire la sauvegarde et à noter quelque part que ce fichier est à transférer sur le site de prod une fois la maintenance terminée.
+
+**Attention, pour que le plugin fonctionne correctement, les 2 sites doivent avoir la même version de WP d'installée.**
+
+Lorsque vous avez terminé et que la recette a été faite, si vous n'avez pas modifié la BDD, transférez les fichiers sur le serveur de prod après avoir effectué une backup du site de prod (de toutes les parties que vous avez modifié, theme, plugin...). Si vous avez modifié la base de données, effectuez une synchronisation (encore une fois, vérifiez bien 2 ou 3 fois si c'est le bon sens).
+
+
+
+
+
